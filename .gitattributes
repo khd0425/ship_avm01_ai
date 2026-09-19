@@ -1,0 +1,53 @@
+# ─── Auto-detect text files and normalize line endings ─────────────────────
+* text=auto
+
+# ─── Shell scripts must have LF line endings ───────────────────────────────
+*.sh text eol=lf
+
+# ─── Batch files must have CRLF line endings ───────────────────────────────
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# ─── Python scripts ────────────────────────────────────────────────────────
+*.py text diff=python
+
+# ─── C/C++ source files ────────────────────────────────────────────────────
+*.c text diff=cpp
+*.cpp text diff=cpp
+*.hpp text diff=cpp
+*.h text diff=cpp
+*.cu text diff=cpp
+*.cuh text diff=cpp
+
+# ─── CMake files ───────────────────────────────────────────────────────────
+CMakeLists.txt text
+*.cmake text
+
+# ─── JSON / YAML / Markdown / config files ─────────────────────────────────
+*.json text
+*.yaml text
+*.yml text
+*.md text diff=markdown
+*.cfg text
+*.conf text
+
+# ─── Binary files ──────────────────────────────────────────────────────────
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.mp4 binary
+*.engine binary
+*.trt binary
+*.onnx binary
+*.ptx binary
+*.cubin binary
+*.fatbin binary
+*.so binary
+*.dylib binary
+*.dll binary
+*.exe binary
+*.pdb binary
+
+# ─── Git generated files ───────────────────────────────────────────────────
+.gitattributes text
+.gitignore text

@@ -1,0 +1,15 @@
+# Phase-1 detector classes (spec AVM-SPEC-2026-001 FR-7.1: "6 classes, valid range 0-50 m").
+# Order = class id used by the detector, config/avm_config.json and the overlay. Do not reorder
+# without retraining. Rationale and datasets: docs/ai_dataset_plan.md
+names:
+  0: person         # 사람      - berthing crew / person on the quay or in the water
+  1: bollard        # 계선주    - mooring bollard / cleat on the quay
+  2: fender         # 방충재    - quay or hull fender (rubber / cylindrical / pneumatic)
+  3: quay_edge      # 안벽 경계 - the quay wall / edge the vessel berths against
+  4: small_vessel   # 소형 선박 - tug, workboat, yacht, fishing boat, pilot boat
+  5: buoy           # 부표      - navigation / mooring / fishnet buoys
+
+# Deferred to phase 2
+deferred:
+  mooring_line: "계류삭 - thin, hard to box; no public dataset; needs segmentation / own data"
+  lighthouse: "등대 - far beyond the 0-50 m valid range, not a berthing object"

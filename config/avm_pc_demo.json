@@ -1,0 +1,135 @@
+{
+    "_comment": "Desktop demo (no Jetson): icSpring fisheye = EO (/dev/video2). Microsoft LifeCam (/dev/video0, normal FOV, COLOUR) sits in window 0 and is the image the AI detector runs on (inference.source = ir0). Window 1 has no camera so it shows the 'channel inactive' marker (FR-1.4).",
+    "camera": {
+        "eo": {
+            "type": "EO_FISHEYE",
+            "width": 1920,
+            "height": 1080,
+            "pixel_format": "RGB8",
+            "fps": 30.0,
+            "source": "/dev/video2",
+            "fourcc": "MJPG",
+            "exposure": 60
+        },
+        "ir": [
+            {
+                "type": "NORMAL_VISIBLE",
+                "width": 1280,
+                "height": 720,
+                "pixel_format": "RGB8",
+                "fps": 30.0,
+                "source": "/dev/video0",
+                "fourcc": "MJPG",
+                "exposure": -1
+            },
+            {
+                "type": "IR_THERMAL",
+                "width": 640,
+                "height": 480,
+                "pixel_format": "MONO8",
+                "fps": 30.0,
+                "source": "/dev/video9"
+            }
+        ]
+    },
+    "output": {
+        "width": 1920,
+        "height": 1080
+    },
+    "calibration": {
+        "_comment": "Estimated equidistant model: image circle measured from a frame (centre 961.5/507.5, radius 513.5 px), assumed 180 deg. Replace by calib_fisheye output for accurate geometry.",
+        "eo_intrinsics": {
+            "fx": 326.9,
+            "fy": 326.9,
+            "cx": 961.5,
+            "cy": 507.5,
+            "k1": 0.0,
+            "k2": 0.0,
+            "k3": 0.0,
+            "k4": 0.0,
+            "fov_deg": 180.0,
+            "image_width": 1920,
+            "image_height": 1080
+        },
+        "eo_mount": {
+            "_comment": "No rotation: the camera axes are the view axes (pitch 0, roll 0), so the rectified 'forward' preset looks along the optical axis, exactly as the camera is placed.",
+            "height_m": 1.0,
+            "pitch_deg": 0.0,
+            "roll_deg": 0.0
+        }
+    },
+    "sync": {
+        "_comment": "Two free-running USB cameras are not hardware-synchronised (the real GMSL2 system is): 16 ms would drop most IR frames.",
+        "tolerance_ms": 100.0,
+        "stale_timeout_ms": 700.0
+    },
+    "pip": {
+        "enabled": true,
+        "windows": [
+            {
+                "anchor": "middle_left",
+                "width_frac": 0.22,
+                "visible": true
+            },
+            {
+                "anchor": "middle_right",
+                "width_frac": 0.22,
+                "visible": true
+            }
+        ]
+    },
+    "view": {
+        "transition_ms": 700,
+        "forward": {
+            "hfov_deg": 100.0,
+            "pitch_deg": 0.0
+        },
+        "topview": {
+            "radius_m": 3.0,
+            "vfov_deg": 60.0,
+            "center_forward_m": 0.0
+        },
+        "roi": {
+            "yaw_deg": 0.0,
+            "pitch_deg": 0.0,
+            "hfov_deg": 45.0
+        },
+        "stabilization": {
+            "enabled": false
+        },
+        "default_preset": 3,
+        "_comment": "default_preset 3 = raw fisheye image as captured; 0 = rectified forward, 1 = top-view, 2 = ROI zoom. Keys 1-4 switch.",
+        "fit_to_visible": true,
+        "raw_fill": true
+    },
+    "inference": {
+        "enabled": true,
+        "backend": "opencv_dnn",
+        "model_path": "models/avm6_n.onnx",
+        "input_size": 640,
+        "confidence_threshold": 0.4,
+        "nms_threshold": 0.45,
+        "classes": [
+            "person",
+            "bollard",
+            "fender",
+            "quay_edge",
+            "small_vessel",
+            "buoy"
+        ],
+        "source": "ir0",
+        "arch": "yolov8",
+        "_comment": "avm6_n.onnx = YOLOv8n fine-tuned by ai/train.py on COCO person + boat (mapped to person / small_vessel). The 4 other classes have no training data yet, so they never fire."
+    },
+    "ar_overlay": {
+        "enabled": true
+    },
+    "recording": {
+        "directory": "recordings"
+    },
+    "logging": {
+        "directory": "logs",
+        "level": "info",
+        "console": true
+    }
+}

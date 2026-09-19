@@ -1,0 +1,102 @@
+# ─── Build directories ──────────────────────────────────────────────────────
+build/
+build_*/
+cmake-build-*/
+_build/
+out/
+bin/
+lib/
+obj/
+
+# ─── IDE / Editor ──────────────────────────────────────────────────────────
+.idea/
+.vscode/
+.vs/
+*.swp
+*.swo
+*~
+.DS_Store
+*.user
+*.suo
+*.sdf
+.vscode/settings.json
+
+# ─── CMake ──────────────────────────────────────────────────────────────────
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+Makefile
+CTestTestfile.cmake
+*.cmake
+!cmake/Find*.cmake
+!CMakeLists.txt
+
+# ─── Compiled / Object files ────────────────────────────────────────────────
+*.o
+*.obj
+*.lib
+*.dll
+*.dylib
+*.so
+*.a
+*.exp
+*.pdb
+*.ilk
+
+# ─── CUDA ───────────────────────────────────────────────────────────────────
+*.cubin
+*.fatbin
+*.ptx
+
+# ─── TensorRT / Model files ─────────────────────────────────────────────────
+*.engine
+*.trt
+*.onnx
+*.wts
+*.weights
+*.calibration
+*.cache
+
+# ─── Python ─────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+*.egg
+*.whl
+
+# ─── Test output / Data files ───────────────────────────────────────────────
+test/data/frames_input/
+test/data/frames_undistorted/
+test/data/frames_preprocessed/
+test/data/output/
+test/data/real_fisheye/output/
+test/data/*.mp4
+test/data/synthetic_fisheye_calib.json
+test/data/undistortion_result.png
+test/data/report_*.md
+*.csv
+*.log
+
+# ─── Documentation generated files ──────────────────────────────────────────
+docs/_build/
+docs/api/
+
+# ─── Environment ───────────────────────────────────────────────────────────
+.env
+.env.local
+venv/
+.venv/
+
+# ─── Local demo / AI workspace ─────────────────────────────────────────────
+build-pc/
+demo/
+logs/
+recordings/
+models/*.onnx
+models/*.pt
+runs/
+datasets/
+*.pt
+weights/
