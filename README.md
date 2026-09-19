@@ -274,3 +274,20 @@ shipborad-avm/
 
 No `LICENSE` file is included in this repository yet; the ownership of the source code is
 to be fixed in the contract (spec ch.13).
+
+---
+
+## Repository contents beyond the source
+
+This repository also versions the artefacts produced during development. It contains **personal camera
+captures** (`demo/`, `recordings/`), so **keep it private**.
+
+| Path | Content | Note |
+|------|---------|------|
+| `weights/` | pretrained YOLO weights downloaded by ultralytics | AGPL-3.0 (see `docs/ai_dataset_plan.md` §7) |
+| `models/` | `yolox_s.onnx` (COCO, Apache-2.0), `avm6_n.onnx` (our 2-class-trained YOLOv8n) | |
+| `runs/avm6_n/` | training run: best/last weights, curves, `results.csv` | |
+| `datasets/avm6/` | COCO subset re-mapped to our classes (5,295 files) | COCO image licences: verify |
+| `demo/`, `logs/` | demo screenshots, run logs | personal images (`recordings/` is empty: the development recordings were deleted) |
+
+New `*.mp4` recordings are tracked with **Git LFS** (`git lfs install` first) because a screen recording easily exceeds GitHub's 100 MB file limit.

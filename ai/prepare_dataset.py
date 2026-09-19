@@ -149,7 +149,8 @@ def add_yolo(src, out, name_map, val_fraction, seed):
 
 
 def write_yaml(out):
-    doc = {"path": str(out.resolve()), "train": "images/train", "val": "images/val",
+    # no "path": ultralytics then resolves the images relative to this yaml file (portable dataset folder)
+    doc = {"train": "images/train", "val": "images/val",
            "names": {int(k): v for k, v in CLASSES.items()}}
     yaml.safe_dump(doc, open(out / "data.yaml", "w"), sort_keys=False)
     # class statistics

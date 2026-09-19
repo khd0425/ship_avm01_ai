@@ -1,0 +1,9 @@
+train: images/train
+val: images/val
+names:
+  0: person
+  1: bollard
+  2: fender
+  3: quay_edge
+  4: small_vessel
+  5: buoy

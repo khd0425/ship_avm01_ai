@@ -52,7 +52,6 @@ CTestTestfile.cmake
 # ─── TensorRT / Model files ─────────────────────────────────────────────────
 *.engine
 *.trt
-*.onnx
 *.wts
 *.weights
 *.calibration
@@ -91,12 +90,3 @@ venv/
 
 # ─── Local demo / AI workspace ─────────────────────────────────────────────
 build-pc/
-demo/
-logs/
-recordings/
-models/*.onnx
-models/*.pt
-runs/
-datasets/
-*.pt
-weights/

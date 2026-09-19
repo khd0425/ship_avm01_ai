@@ -1,16 +1,12 @@
 # ─── Auto-detect text files and normalize line endings ─────────────────────
 * text=auto
-
 # ─── Shell scripts must have LF line endings ───────────────────────────────
 *.sh text eol=lf
-
 # ─── Batch files must have CRLF line endings ───────────────────────────────
 *.bat text eol=crlf
 *.cmd text eol=crlf
-
 # ─── Python scripts ────────────────────────────────────────────────────────
 *.py text diff=python
-
 # ─── C/C++ source files ────────────────────────────────────────────────────
 *.c text diff=cpp
 *.cpp text diff=cpp
@@ -18,11 +14,9 @@
 *.h text diff=cpp
 *.cu text diff=cpp
 *.cuh text diff=cpp
-
 # ─── CMake files ───────────────────────────────────────────────────────────
 CMakeLists.txt text
 *.cmake text
-
 # ─── JSON / YAML / Markdown / config files ─────────────────────────────────
 *.json text
 *.yaml text
@@ -30,12 +24,11 @@ CMakeLists.txt text
 *.md text diff=markdown
 *.cfg text
 *.conf text
-
 # ─── Binary files ──────────────────────────────────────────────────────────
 *.png binary
 *.jpg binary
 *.jpeg binary
-*.mp4 binary
+*.mp4 filter=lfs diff=lfs merge=lfs -text
 *.engine binary
 *.trt binary
 *.onnx binary
@@ -47,7 +40,6 @@ CMakeLists.txt text
 *.dll binary
 *.exe binary
 *.pdb binary
-
 # ─── Git generated files ───────────────────────────────────────────────────
 .gitattributes text
 .gitignore text
