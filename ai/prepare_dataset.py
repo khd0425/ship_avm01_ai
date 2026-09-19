@@ -6,9 +6,9 @@ small_vessel, buoy). Every source dataset uses its own class names, so each sour
 converted with an explicit mapping  <source name> -> <AVM class>; unmapped classes are dropped.
 
 Sources
-  coco : COCO 2017 annotation zip + images downloaded on demand (person -> person, boat -> small_vessel)
-  yolo : any dataset already in YOLO format (e.g. a Roboflow "YOLOv8" export). Bollard / fender /
-         buoy / quay-edge data come in through this route.
+  coco   : COCO 2017 annotation zip + images downloaded on demand (person -> person, boat -> small_vessel)
+  yolo   : any dataset already in YOLO format (e.g. a Roboflow "YOLOv8" export)
+  rfcoco : a Roboflow export in "COCO" format (folders train/valid/test, each with _annotations.coco.json)
 
 Examples
   # COCO subset (train 1200 images per class, val 150)
@@ -148,6 +148,57 @@ def add_yolo(src, out, name_map, val_fraction, seed):
     print(f"[yolo] {n_img} images added")
 
 
+def add_rfcoco(spec, out, val_fraction, seed, min_px=6):
+    """spec = "<dir>|<src>:<avm>,<src>:<avm>|<drop1>,<drop2>" (third part optional)."""
+    parts = spec.split("|")
+    src = Path(parts[0])
+    name_map = dict(kv.split(":", 1) for kv in parts[1].split(",") if kv)
+    drop_if = set(x for x in (parts[2].split(",") if len(parts) > 2 else []) if x)
+    bad = [v for v in name_map.values() if v not in NAME_TO_ID]
+    if bad:
+        sys.exit(f"unknown AVM class in map: {bad}; valid: {list(NAME_TO_ID)}")
+
+    rng = random.Random(seed)
+    n_img = n_box = n_drop = 0
+    used = {}
+    for split in ("train", "valid", "val", "test"):
+        jf = src / split / "_annotations.coco.json"
+        if not jf.exists():
+            continue
+        data = json.load(open(jf))
+        cats = {c["id"]: c["name"] for c in data["categories"]}
+        per_image = {}
+        present = {}
+        for a in data["annotations"]:
+            cname = cats[a["category_id"]]
+            present.setdefault(a["image_id"], set()).add(cname)
+            if cname in name_map:
+                per_image.setdefault(a["image_id"], []).append((NAME_TO_ID[name_map[cname]], *a["bbox"]))
+        for info in data["images"]:
+            iid = info["id"]
+            if iid not in per_image:
+                continue                                    # nothing we care about in this image
+            if present[iid] & drop_if:
+                n_drop += 1                                 # contains an object we cannot label (e.g. large ships)
+                continue
+            lines = [yolo_line(c, x, y, w, h, info["width"], info["height"])
+                     for c, x, y, w, h in per_image[iid] if w >= min_px and h >= min_px]
+            img_path = src / split / info["file_name"]
+            if not lines or not img_path.exists():
+                continue
+            target = "val" if (split in ("valid", "val", "test") or rng.random() < val_fraction) else "train"
+            (out / "images" / target).mkdir(parents=True, exist_ok=True)
+            (out / "labels" / target).mkdir(parents=True, exist_ok=True)
+            stem = f"{src.name}_{Path(info['file_name']).stem}"
+            shutil.copy(img_path, out / "images" / target / f"{stem}{img_path.suffix}")
+            (out / "labels" / target / f"{stem}.txt").write_text("\n".join(lines) + "\n")
+            n_img += 1
+            n_box += len(lines)
+            for ln in lines:
+                used[CLASSES[int(ln.split()[0])]] = used.get(CLASSES[int(ln.split()[0])], 0) + 1
+    print(f"[rfcoco] {src.name}: {n_img} images, {n_box} boxes {used}; {n_drop} images dropped ({', '.join(sorted(drop_if)) or '-'})")
+
+
 def write_yaml(out):
     # no "path": ultralytics then resolves the images relative to this yaml file (portable dataset folder)
     doc = {"train": "images/train", "val": "images/val",
@@ -175,6 +226,8 @@ def main():
     ap.add_argument("--coco-val-per-class", type=int, default=150)
     ap.add_argument("--yolo", action="append", default=[], help="YOLO-format dataset folder (repeatable)")
     ap.add_argument("--yolo-map", action="append", default=[], help='"source name:avm name,..." per --yolo')
+    ap.add_argument("--rfcoco", action="append", default=[],
+                    help='Roboflow COCO export: "<dir>|<src>:<avm>,...|<drop classes>" (repeatable)')
     ap.add_argument("--val-fraction", type=float, default=0.1)
     ap.add_argument("--seed", type=int, default=0)
     a = ap.parse_args()
@@ -195,6 +248,8 @@ def main():
         if bad:
             sys.exit(f"unknown AVM class in map: {bad}; valid: {list(NAME_TO_ID)}")
         add_yolo(src, out, m, a.val_fraction, a.seed)
+    for spec in a.rfcoco:
+        add_rfcoco(spec, out, a.val_fraction, a.seed)
     write_yaml(out)
 
 

@@ -90,3 +90,4 @@ venv/
 
 # ─── Local demo / AI workspace ─────────────────────────────────────────────
 build-pc/
+datasets/raw/

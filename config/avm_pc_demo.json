@@ -105,7 +105,7 @@
     "inference": {
         "enabled": true,
         "backend": "opencv_dnn",
-        "model_path": "models/avm6_n.onnx",
+        "model_path": "models/avm7_n.onnx",
         "input_size": 640,
         "confidence_threshold": 0.4,
         "nms_threshold": 0.45,
@@ -119,7 +119,7 @@
         ],
         "source": "ir0",
         "arch": "yolov8",
-        "_comment": "avm6_n.onnx = YOLOv8n fine-tuned by ai/train.py on COCO person + boat (mapped to person / small_vessel). The 4 other classes have no training data yet, so they never fire."
+        "_comment": "avm7_n.onnx = YOLOv8n fine-tuned by ai/train.py on COCO person/boat + 4 Roboflow datasets (buoy x2, swimmers, ship recognition), classes person / small_vessel / buoy. bollard, fender and quay_edge have no training data yet, so they never fire."
     },
     "ar_overlay": {
         "enabled": true

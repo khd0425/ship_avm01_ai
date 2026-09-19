@@ -26,7 +26,7 @@ paths (zero-copy mapped memory, TensorRT, NVENC, GMSL2 cameras) are untested.
 | IR PiP + histogram AGC + show/hide/move (FR-3.1–3.3) | AGC & layout tested; GPU compositing needs Jetson build |
 | 3 view presets, top-view r = 15 m, smooth transitions (FR-4) | Geometry tested + visually verified; CUDA kernel needs Jetson build |
 | Digital stabilisation (FR-5.1) | Geometry tested; no real IMU input yet (simulator `--sim-motion`) |
-| AI detection (FR-7) | Works on the PC via OpenCV DNN (YOLOX pretrained; YOLOv8 trained on our 6 classes): runs on a normal-FOV camera image. Trained data so far covers **person + small_vessel only**; bollard / fender / buoy / quay_edge need data. **TensorRT (Jetson) not done** — see [docs/ai_dataset_plan.md](docs/ai_dataset_plan.md) |
+| AI detection (FR-7) | Works on the PC via OpenCV DNN (YOLOX pretrained; YOLOv8 trained on our 6 classes): runs on a normal-FOV camera image. Trained on **person, small_vessel, buoy** (COCO + 4 Roboflow datasets); bollard / fender / quay_edge still have no data. **TensorRT (Jetson) not done** — see [docs/ai_dataset_plan.md](docs/ai_dataset_plan.md) |
 | Operator UI (FR-8) | Temporary OpenCV window (status text + keys); awaiting the customer UI design |
 | Recording, logging (FR-9) | Implemented (NVENC via GStreamer untested) |
 | AR overlay / NMEA (FR-6, optional) | Simple overlay only, no NMEA parser |
@@ -144,6 +144,7 @@ python ai/train.py --data datasets/avm6/data.yaml --epochs 30 --name avm6_n
 ```
 
 Data sources, licences, gaps and the fisheye strategy: [docs/ai_dataset_plan.md](docs/ai_dataset_plan.md).
+Getting more data with Roboflow (download, class mapping, labelling): [docs/roboflow_guide.md](docs/roboflow_guide.md).
 
 ## Running
 

@@ -8,7 +8,7 @@
 | 최초 클래스 | 6종: `person, bollard, fender, quay_edge, small_vessel, buoy` ([ai/classes.yaml](../ai/classes.yaml)) |
 | PC 추론 | OpenCV DNN + ONNX (CPU), 파이프라인 안에서 비동기 스레드로 실행 (`inference.backend: opencv_dnn`) |
 | Jetson 추론 | 동일한 ONNX → TensorRT (FP16). `InferenceEngine`(TensorRT 자리)은 아직 스텁 |
-| 학습 | `ai/prepare_dataset.py` → `ai/train.py` (YOLOv8n 미세조정) → ONNX 내보내기 |
+| 학습 | `ai/prepare_dataset.py` → `ai/train.py` (YOLOv8n 미세조정) → ONNX 내보내기. 데이터 출처·라이선스: [data_attribution.md](data_attribution.md) |
 
 ## 2. 최초 6종
 
@@ -53,19 +53,31 @@
 
 `ai/prepare_dataset.py --yolo <export> --yolo-map "원본이름:우리이름"`으로 Roboflow(YOLOv8) 내보내기를 그대로 합칠 수 있다(계정·API 키는 사용자가 발급해 내려받아야 함).
 
-## 5. 이번에 실제로 실행한 결과
+## 5. 학습 결과
 
-데이터: COCO에서 person·boat를 우리 클래스로 재매핑 (train 2,385장: person 6,419 박스 / small_vessel 3,668 박스, val 261장). 나머지 4개 클래스는 학습 데이터 0 (스크립트가 경고 출력). 모델: YOLOv8n(COCO 사전학습) 25 에폭 미세조정, TITAN RTX, 8분.
+두 차례 학습했다. 모델은 모두 YOLOv8n(COCO 사전학습에서 미세조정), TITAN RTX, imgsz 640.
 
-| 클래스 | mAP50 | mAP50-95 |
-|--------|------:|---------:|
-| person | 0.784 | 0.502 |
-| small_vessel | 0.469 | 0.247 |
-| bollard / fender / quay_edge / buoy | 데이터 없음 | — |
+| 실행 | 데이터 | 시간 |
+|------|--------|------|
+| `avm6_n` | COCO 부분집합(person·boat) — 학습 2,385장 | 25 에폭, 8분 |
+| **`avm7_n`** | COCO + Roboflow 4종(부표 2, 수영자, 선박 인식) — **학습 5,189장 / 검증 991장** | 40 에폭, 25분 |
 
-- 이 수치는 **COCO 검증 부분집합** 기준이며 선박 접안 환경의 성능이 아니다. person·boat는 원래 COCO 사전학습에 포함된 클래스이므로 **이번 학습의 실질적 의미는 "데이터 → 학습 → ONNX → C++ 추론" 체인의 검증**이다.
-- ONNX(`models/avm6_n.onnx`)를 C++ 파이프라인에 넣어 **일반 화각 카메라(LifeCam) 라이브 영상에서 `person` 검출** 확인. 사진 추론 49~78 ms/장(CPU).
-- FR-7.4(사람 검출률 ≥80 %, 30 m 이내)의 평가는 아직 못 함: 거리별 검증 데이터셋이 필요(§6).
+`avm7_n` 검증 결과 (991장, 2,245박스):
+
+| 클래스 | 학습 박스 | 검증 mAP50 | mAP50-95 | 비고 |
+|--------|----------:|-----------:|---------:|------|
+| person | 7,599 | 0.744 | 0.446 | 수영장 영상 포함(도메인 차이) |
+| small_vessel | 3,982 | 0.549 | 0.267 | 원거리·소형 객체가 많아 가장 어려움 |
+| buoy | 2,839 | 0.980 | 0.791 | 아래 주의 |
+| bollard / fender / quay_edge | **0** | — | — | 데이터 없음. 이 세 클래스는 출력되지 않는다 |
+| 전체(3클래스) | | 0.757 | 0.501 | |
+
+**해석 시 주의**
+- 학습 로그의 `per-class mAP50-95`에서 데이터 없는 클래스가 0.501로 표시되는 것은 도구가 전체 평균으로 채운 값이며 성능이 아니다.
+- **검증셋이 학습 데이터와 같은 출처**(Roboflow 데이터셋을 무작위 분할)라 near-duplicate 프레임이 섞여 있을 수 있다. 특히 buoy 0.98은 **낙관적**이다. 실제 접안 환경 성능은 별도의 독립 검증셋(자체 촬영)으로 측정해야 한다.
+- `avm6_n`과 `avm7_n`은 검증셋이 달라 mAP를 직접 비교할 수 없다.
+- 표준 사진과 라이브 카메라에서의 확인: `avm7_n`은 bus 사진의 사람 4명을 모두 검출(이전 모델 3명), 부표 이미지에서 buoy 검출, 사진 추론 30~75 ms/장(CPU).
+- FR-7.4(사람 검출률 ≥80 %, 30 m 이내)의 평가는 아직 못 함: 거리별 독립 검증 데이터셋이 필요(§6).
 
 ## 6. 다음 단계
 
